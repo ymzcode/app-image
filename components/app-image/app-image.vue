@@ -3,28 +3,35 @@
 </template>
 
 <script>
-// 可自定义项
+/*
+* 下面是一些代办事项(todolist)
+* - 可以按照图片的原大小进行显示
+* - 可以操作图片进行翻转
+* - 完善图片缓存功能
+* - 完善压缩图片质量功能
+* - 
+*/
+
+// ## 可自定义项
 
 // * 1 * 自定义要替换的错误图片地址
 // 数组形式, 当前对应资源文件 static/imgError/XXXX.png
 let defaultImgArr = ['/static/imgError/imgError-1.png'];
 
-// 重要,谨慎修改
+// ## 重要,谨慎修改
 // 封装的一些函数
 // -----------start--------------
 // 检查头像图片是否正常访问
 // __src 要检查的图片地址
 // defaultImg 要替换的默认图片地址， 不填则不进行替换
 function checkAvatarImgSrc(__src, defaultImg) {
-	let temp_src = '';
+	
 	try {
-		if (typeof __src !== 'string' || (defaultImg && typeof defaultImg !== 'string')) {
-			console.log('传入的类型错误，不为string', __src, defaultImg);
-			return temp_src;
-		}
+		
 		temp_src = __src;
 		// console.log('核查的图片地址', __src);
-
+		return uni.getImageInfo({src: __src})
+		
 		return new Promise(function(resolve, reject) {
 			if (!imageUrl(__src)) {
 				// console.log('此图片的地址不对');
@@ -141,23 +148,13 @@ export default {
 	},
 	data() {
 		return {
-			compSrc: ''
+			compSrc: '',
+			// 判断处理中是否出现错误
+			RUNERROR: false
 		};
 	},
 	mounted() {
-		if (this.autoCheckImage) {
-			checkAvatarImgSrc(this.src, defaultImgArr[this.replaceImgIndex])
-				.then(res => {
-					// console.log('aaaaa', res);
-					this.compSrc = res.img;
-				})
-				.catch(err => {
-					// console.log(err.img);
-					this.compSrc = err.img;
-				});
-		} else {
-			this.compSrc = this.src;
-		}
+		this.imgInit()
 
 		// if (this.isCatch) {
 		//     this.compSrc = this.catchImg(this.src);
@@ -165,6 +162,34 @@ export default {
 	},
 	computed: {},
 	methods: {
+		// 图片初始化
+		imgInit() {
+			if (this.autoCheckImage) {
+				this.checkImg()
+			} else {
+				this.compSrc = this.src
+			}
+		},
+		// 判断图片是否正常
+		checkImg() {
+			let __src = this.src;
+			if (typeof __src !== 'string') {
+				console.error('传入的类型错误，不为string', __src);
+				return;
+			}
+			uni.getImageInfo({src: __src}).then(data => { //data为一个数组，数组第一项为错误信息，第二项为返回数据
+				let [error, res]  = data;
+				// console.log(data, error, res);
+				if (error) {
+					this.compSrc = defaultImgArr[this.replaceImgIndex]
+					console.error(`图片: ${__src}, 错误信息:`, error);
+				} else {
+					this.compSrc = res.path
+				}
+			}).catch(err => {
+				console.error('uni.getImageInfo err', err);
+			})
+		},
 		// 对图片进行缓存
 		catchImg(imgSrc) {
 			let _self = this;
