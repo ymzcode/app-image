@@ -5,6 +5,18 @@
 			"style": {
 				"navigationBarTitleText": "uni-app"
 			}
+		},
+		{
+			"path": "pages/test/test-1",
+			"style": {
+				"navigationBarTitleText": "图片测试一"
+			}
+		},
+		{
+			"path": "pages/test/test-2",
+			"style": {
+				"navigationBarTitleText": "图片测试二"
+			}
 		}
 	],
 	"globalStyle": {

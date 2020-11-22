@@ -2,8 +2,8 @@
     "name" : "app-image",
     "appid" : "__UNI__A3BD1BB",
     "description" : "一个关于app-image的组件",
-    "versionName" : "1.0.0",
-    "versionCode" : "100",
+    "versionName" : "1.0.1",
+    "versionCode" : 101,
     "transformPx" : false,
     /* 5+App特有相关 */
     "app-plus" : {

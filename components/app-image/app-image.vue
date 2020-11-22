@@ -1,28 +1,13 @@
 <template>
-	<view><image :src="compSrc" :lazy-load="lazyLoad" :mode="mode" :style="`width: ${width}${imgUnit}; height: ${height}${imgUnit}; ${imgStyle}`" :class="imgClass"></image></view>
+	<view>
+		<image :src="compSrc" :lazy-load="lazyLoad" :mode="mode" :style="`width: ${width}${imgUnit}; height: ${height}${imgUnit}; ${imgStyle}`" :class="imgClass"></image>
+	</view>
 </template>
 
 <script>
-/*
- * 下面是一些代办事项(todolist)
- * - 可以按照图片的原大小进行显示
- * - 可以操作图片进行翻转
- * - 完善图片缓存功能
- * - 完善压缩图片质量功能
- * -
- */
-
-// ## 可自定义项
-
 // * 1 * 自定义要替换的错误图片地址
 // 数组形式, 当前对应资源文件 static/imgError/XXXX.png
 let defaultImgArr = ['/static/imgError/imgError-1.png'];
-
-// ## 重要,谨慎修改
-// 封装的一些函数
-// -----------start--------------
-
-// -----------end--------------
 
 export default {
 	name: 'AppImage',
@@ -77,17 +62,16 @@ export default {
 			type: Number,
 			default: 0
 		},
-		// 是否压缩图片质量
-		// !!! 压缩图片质量不支持网络图片地址
-		isCompressImage: {
-			type: Boolean,
-			default: false
-		},
+		// // 是否压缩图片质量
+		// isCompressImage: {
+		// 	type: Boolean,
+		// 	default: false
+		// },
 		// 压缩图片质量的大小
-		compressQuality: {
-			type: Number,
-			default: 80
-		},
+		// compressQuality: {
+		// 	type: Number,
+		// 	default: 80
+		// },
 		// 图片是否进行缓存
 		isCatch: {
 			type: Boolean,
@@ -140,15 +124,15 @@ export default {
 			let str = RegExp('http');
 			this.networkImg = str.test(__src);
 
-			// 不是网络图片, 不检查
-			if (!this.networkImg) {
+			// 不是网络图片/没有开启缓存, 不检查缓存图片
+			if (!this.networkImg || !this.isCatch) {
 				return;
 			}
 
 			const _img = uni.getStorageSync(__src); // 同步方法
 			if (_img) {
 				// 得到缓存的图片 , 直接使用缓存的图片
-				console.log(_img);
+				// console.log(_img);
 				this.compSrc = _img.path;
 				this.isGetCatchImg = true;
 				return _img;
@@ -161,7 +145,7 @@ export default {
 				.then(data => {
 					//data为一个数组，数组第一项为错误信息，第二项为返回数据
 					let [error, res] = data;
-					console.log(data);
+					// console.log(data);
 					if (error) {
 						this.compSrc = defaultImgArr[this.replaceImgIndex];
 						console.error(`图片: ${__src}, 错误信息:`, error);
@@ -181,7 +165,7 @@ export default {
 		// 图片缓存之前的判断
 		beforeCatchImg() {
 			let flag = false;
-			console.log('----------------', this.isCatch, this.imgInfo, this.imgInfo.path, this.networkImg, !this.isGetCatchImg);
+			// console.log('----------------', this.isCatch, this.imgInfo, this.imgInfo.path, this.networkImg, !this.isGetCatchImg);
 			if (this.isCatch && this.imgInfo && this.imgInfo.path && this.networkImg && !this.isGetCatchImg) {
 				// 开启图片缓存 图片信息正确获取 图片为网络地址
 				flag = true;
@@ -195,7 +179,7 @@ export default {
 				data: value
 			})
 				.then(data => {
-					console.log(data);
+					// console.log(data);
 				})
 				.catch(err => {
 					console.error(err);
@@ -211,7 +195,7 @@ export default {
 					tempFilePath: this.imgInfo.path
 				})
 					.then(data => {
-						console.log(data);
+						// console.log(data);
 						//data为一个数组，数组第一项为错误信息，第二项为返回数据
 						let [saveFile_error, saveFile_res] = data;
 						// console.log(data, error, res);
@@ -223,7 +207,7 @@ export default {
 							let imgObj = Object.assign({}, _self.imgInfo);
 							imgObj.path = saveFile_res.savedFilePath;
 							_self.saveImgStorage(_self.src, imgObj);
-							console.log('图片更换为本地地址');
+							// console.log('图片更换为本地地址');
 							_self.compSrc = saveFile_res.savedFilePath;
 							return saveFile_res.savedFilePath;
 						}
@@ -240,4 +224,21 @@ export default {
 };
 </script>
 
-<style></style>
+<style scoped>
+.__row {
+	/* #ifdef APP-VUE */
+	display: flex;
+	/* #endif */
+	flex-direction: row;
+}
+.__column {
+	/* #ifdef APP-VUE */
+	display: flex;
+	/* #endif */
+	flex-direction: column;
+}
+.__p {
+	padding: 30rpx;
+}
+
+</style>
