@@ -7,7 +7,7 @@
 <script>
 // * 1 * 自定义要替换的错误图片地址
 // 数组形式, 当前对应资源文件 static/imgError/XXXX.png
-let defaultImgArr = ['/static/imgError/imgError-1.png'];
+let defaultImgArr = ['/static/app-image/imgError/imgError-1.png'];
 
 export default {
 	name: 'AppImage',
