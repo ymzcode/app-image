@@ -1,6 +1,6 @@
 <template>
 	<view class="content">
-		<app-image src="http://file06.16sucai.com/2018/0315/88922456774b04fa4abdd1dab721a1b5.jpg"></app-image>
+		<app-image src="/static/logo.png" isCatch></app-image>
 		<view class="text-area">
 			<text class="title">{{title}}</text>
 		</view>

@@ -4,13 +4,13 @@
 
 <script>
 /*
-* 下面是一些代办事项(todolist)
-* - 可以按照图片的原大小进行显示
-* - 可以操作图片进行翻转
-* - 完善图片缓存功能
-* - 完善压缩图片质量功能
-* - 
-*/
+ * 下面是一些代办事项(todolist)
+ * - 可以按照图片的原大小进行显示
+ * - 可以操作图片进行翻转
+ * - 完善图片缓存功能
+ * - 完善压缩图片质量功能
+ * -
+ */
 
 // ## 可自定义项
 
@@ -21,58 +21,6 @@ let defaultImgArr = ['/static/imgError/imgError-1.png'];
 // ## 重要,谨慎修改
 // 封装的一些函数
 // -----------start--------------
-// 检查头像图片是否正常访问
-// __src 要检查的图片地址
-// defaultImg 要替换的默认图片地址， 不填则不进行替换
-function checkAvatarImgSrc(__src, defaultImg) {
-	
-	try {
-		
-		temp_src = __src;
-		// console.log('核查的图片地址', __src);
-		return uni.getImageInfo({src: __src})
-		
-		return new Promise(function(resolve, reject) {
-			if (!imageUrl(__src)) {
-				// console.log('此图片的地址不对');
-				if (defaultImg) {
-					temp_src = defaultImg;
-				}
-				reject({ img: temp_src });
-				return;
-			}
-
-			// 判断图片是否正常
-			uni.getImageInfo({
-				src: __src,
-				success: res => {
-					console.log(res);
-					resolve({ res, img: temp_src });
-				},
-				fail: err => {
-					console.log(err);
-					if (defaultImg) {
-						temp_src = defaultImg;
-					}
-					reject({ err, img: temp_src });
-				},
-				complete: e => {
-					// console.log(e);
-					// console.log('11111');
-				}
-			});
-		});
-	} catch (e) {
-		//TODO handle the exception
-		console.error('checkAvatarImgSrc 方法出错', e);
-	}
-}
-
-// 检查图片的地址是否携带http
-function imageUrl(url) {
-	let str = RegExp('http');
-	return str.test(url);
-}
 
 // -----------end--------------
 
@@ -155,139 +103,134 @@ export default {
 		return {
 			compSrc: '',
 			// 判断处理中是否出现错误
-			RUNERROR: false
+			RUNERROR: false,
+			// 存储图片的信息
+			imgInfo: null,
+			// 判断是否为网络图片
+			networkImg: false,
+			// 是否已经获得缓存图
+			isGetCatchImg: false
 		};
 	},
 	mounted() {
 		// 调用图片初始化
-		this.imgInit()
-
-		// if (this.isCatch) {
-		//     this.compSrc = this.catchImg(this.src);
-		// }
+		this.imgInit();
 	},
 	computed: {},
 	methods: {
 		// 图片初始化
 		imgInit() {
 			if (this.autoCheckImage) {
-				this.checkImg()
+				this.checkImageUrl();
+				this.checkImg();
 			} else {
-				this.compSrc = this.src
+				this.compSrc = this.src;
 			}
 		},
-		// 判断图片是否正常
-		checkImg() {
+		// 检查图片的地址是否携带http,
+		// 检查图片传入的参数是否正常
+		// 检查图片是否已经缓存
+		checkImageUrl() {
 			let __src = this.src;
 			if (typeof __src !== 'string') {
 				console.error('传入的类型错误，不为string', __src);
 				return;
 			}
-			uni.getImageInfo({src: __src}).then(data => { //data为一个数组，数组第一项为错误信息，第二项为返回数据
-				let [error, res]  = data;
-				// console.log(data, error, res);
-				if (error) {
-					this.compSrc = defaultImgArr[this.replaceImgIndex]
-					console.error(`图片: ${__src}, 错误信息:`, error);
-				} else {
-					this.compSrc = res.path
-				}
-			}).catch(err => {
-				console.error('uni.getImageInfo err', err);
+
+			let str = RegExp('http');
+			this.networkImg = str.test(__src);
+
+			// 不是网络图片, 不检查
+			if (!this.networkImg) {
+				return;
+			}
+
+			const _img = uni.getStorageSync(__src); // 同步方法
+			if (_img) {
+				// 得到缓存的图片 , 直接使用缓存的图片
+				console.log(_img);
+				this.compSrc = _img.path;
+				this.isGetCatchImg = true;
+				return _img;
+			}
+		},
+		// 判断图片是否正常,并下载图片到临时本地路径
+		checkImg() {
+			let __src = this.isGetCatchImg ? this.compSrc : this.src; // 拿到缓存图时, 使用缓存图进行检查, 没有就使用原图地址
+			uni.getImageInfo({ src: __src })
+				.then(data => {
+					//data为一个数组，数组第一项为错误信息，第二项为返回数据
+					let [error, res] = data;
+					console.log(data);
+					if (error) {
+						this.compSrc = defaultImgArr[this.replaceImgIndex];
+						console.error(`图片: ${__src}, 错误信息:`, error);
+					} else {
+						// 拿到获取的图片信息
+						this.imgInfo = res;
+						this.compSrc = res.path;
+						if (this.beforeCatchImg()) {
+							this.catchImg();
+						}
+					}
+				})
+				.catch(err => {
+					console.error('uni.getImageInfo err', err);
+				});
+		},
+		// 图片缓存之前的判断
+		beforeCatchImg() {
+			let flag = false;
+			console.log('----------------', this.isCatch, this.imgInfo, this.imgInfo.path, this.networkImg, !this.isGetCatchImg);
+			if (this.isCatch && this.imgInfo && this.imgInfo.path && this.networkImg && !this.isGetCatchImg) {
+				// 开启图片缓存 图片信息正确获取 图片为网络地址
+				flag = true;
+			}
+			return flag;
+		},
+		// 保存图片的方法
+		saveImgStorage(key, value) {
+			uni.setStorage({
+				key: key,
+				data: value
 			})
+				.then(data => {
+					console.log(data);
+				})
+				.catch(err => {
+					console.error(err);
+				});
 		},
 		// 对图片进行缓存
-		catchImg(imgSrc) {
+		catchImg() {
 			let _self = this;
+			let imgSrc = this.src; // 拿到图片的原地址
 			try {
-				const _img = uni.getStorageSync(imgSrc); // 同步方法
-				if (_img) {
-					// 得到缓存的图片 , 直接返回图片
-					console.log(_img);
-					return _img;
-				} else {
-					// 异步方法
-					// 本次依旧返回原图片地址 但是下次访问时将返回缓存的地址
-
-					// 检查图片的地址是否携带http
-					let str = RegExp('http');
-					if (!str.test(imgSrc)) {
-						console.error('图片的地址中没有携带http', imgSrc);
-						return imgSrc;
-					}
-					
-					
-					return ;
-					uni.downloadFile({
-						url: imgSrc, // 网络图片地址
-						success: res => {
-							if (res.statusCode === 200) {
-								console.log('下载成功', res);
-								if (!res.tempFilePath) {
-									console.error('error 下载图片后的地址为空', res);
-									return;
-								}
-
-								let compressImage_Promise = function() {
-									return new Promise(function(resolve, reject) {
-										try {
-											if (_self.isCompressImage) {
-												uni.compressImage({
-													src: res.tempFilePath,
-													quality: 80,
-													success: compressImage_res => {
-														console.log('压缩成功', compressImage_res);
-														resolve(compressImage_res.tempFilePath);
-													},
-													fail: compressImage_err => {
-														console.log('error 压缩失败', compressImage_err);
-														reject(compressImage_err);
-													}
-												});
-											} else {
-												resolve(res.tempFilePath);
-											}
-										} catch (e) {
-											console.error('error 压缩图片过程中出错', e);
-										}
-									});
-								};
-
-								compressImage_Promise()
-									.then(CIP_res => {
-										console.log('compressImage_Promise', CIP_res);
-										uni.saveFile({
-											tempFilePath: CIP_res,
-											success: function(res) {
-												console.log('保存文件成功', res.savedFilePath);
-												uni.setStorage({
-													key: imgSrc,
-													data: res.savedFilePath,
-													success: setStorage_res => {
-														console.log('缓存成功', setStorage_res);
-													},
-													fail: setStorage_err => {
-														console.error('error 缓存失败', setStorage_err);
-													}
-												});
-											},
-											fail: function(err) {
-												console.error('error 保存文件失败', err);
-											}
-										});
-									})
-									.catch(CIP_err => {
-										console.error('error compressImage_Promise失败', CIP_err);
-									});
-							}
-						},
-						fail: err => {
-							console.error(err);
+				// 异步方法
+				uni.saveFile({
+					tempFilePath: this.imgInfo.path
+				})
+					.then(data => {
+						console.log(data);
+						//data为一个数组，数组第一项为错误信息，第二项为返回数据
+						let [saveFile_error, saveFile_res] = data;
+						// console.log(data, error, res);
+						if (saveFile_error) {
+							console.error(`保存 下载图片: ${downloadFile_res.tempFilePath}, 错误信息:`, saveFile_error);
+							return;
 						}
+						if (saveFile_res) {
+							let imgObj = Object.assign({}, _self.imgInfo);
+							imgObj.path = saveFile_res.savedFilePath;
+							_self.saveImgStorage(_self.src, imgObj);
+							console.log('图片更换为本地地址');
+							_self.compSrc = saveFile_res.savedFilePath;
+							return saveFile_res.savedFilePath;
+						}
+					})
+					.catch(err => {
+						console.error(err);
 					});
-
-					return imgSrc;
-				}
 			} catch (e) {
 				// error
 				console.error('error 缓存图片时遇到问题', e);
