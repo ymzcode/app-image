@@ -22,7 +22,7 @@
 | imgStyle(图片的自定义样式) | String |   无   |
 | imgClass(图片的自定义样式名) | String |   无   |
 | autoCheckImage(是否开启图片自检、替换) | Boolean |   true   |
-| imgUnit(是否开启图片自检、替换) | String |   rpx   |
+| imgUnit(图片的大小单位) | String |   rpx   |
 | replaceImgIndex(如果图片出错， 使用哪个默认图片进行替换) | Number |   0   |
 | isCatch(图片是否进行缓存) | Boolean |   false   |
 | lazyLoad(图片懒加载) | Boolean |   true   |
