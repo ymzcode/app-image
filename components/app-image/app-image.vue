@@ -128,7 +128,8 @@ export default {
 			if (!this.networkImg || !this.isCatch) {
 				return;
 			}
-
+			
+			// #ifdef APP-PLUS
 			const _img = uni.getStorageSync(__src); // 同步方法
 			if (_img) {
 				// 得到缓存的图片 , 直接使用缓存的图片
@@ -137,6 +138,7 @@ export default {
 				this.isGetCatchImg = true;
 				return _img;
 			}
+			// #endif
 		},
 		// 判断图片是否正常,并下载图片到临时本地路径
 		checkImg() {
@@ -153,9 +155,11 @@ export default {
 						// 拿到获取的图片信息
 						this.imgInfo = res;
 						this.compSrc = res.path;
+						// #ifdef APP-PLUS
 						if (this.beforeCatchImg()) {
 							this.catchImg();
 						}
+						// #endif
 					}
 				})
 				.catch(err => {
