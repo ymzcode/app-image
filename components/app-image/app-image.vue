@@ -1,5 +1,5 @@
 <template>
-	<view><image :src="compSrc" :lazy-load="true" :mode="mode" :style="`width: ${width}${imgUnit}; height: ${height}${imgUnit}; ${imgStyle}`" :class="imgClass"></image></view>
+	<view><image :src="compSrc" :lazy-load="lazyLoad" :mode="mode" :style="`width: ${width}${imgUnit}; height: ${height}${imgUnit}; ${imgStyle}`" :class="imgClass"></image></view>
 </template>
 
 <script>
@@ -144,6 +144,11 @@ export default {
 		isCatch: {
 			type: Boolean,
 			default: false
+		},
+		// 图片懒加载
+		lazyLoad: {
+			type: Boolean,
+			default: true
 		}
 	},
 	data() {
@@ -154,6 +159,7 @@ export default {
 		};
 	},
 	mounted() {
+		// 调用图片初始化
 		this.imgInit()
 
 		// if (this.isCatch) {
