@@ -5,6 +5,8 @@
 </template>
 
 <script>
+import appImageUtil from './AppImageUtil.js'
+
 // * 1 * 自定义要替换的错误图片地址
 // 数组形式, 当前对应资源文件 static/imgError/XXXX.png
 let defaultImgArr = ['/static/app-image/imgError/imgError-1.png'];
@@ -99,6 +101,11 @@ export default {
 	mounted() {
 		// 调用图片初始化
 		this.imgInit();
+		// appImageUtil.Catch.getAllKey('nosync').then(res => {
+		// 	console.log(res);
+		// })
+		// console.log(appImageUtil.Catch.getAllKey());
+		// console.log(appImageUtil.CATCH_FLAG);
 	},
 	computed: {},
 	methods: {
@@ -130,7 +137,7 @@ export default {
 			}
 			
 			// #ifdef APP-PLUS
-			const _img = uni.getStorageSync(__src); // 同步方法
+			const _img = uni.getStorageSync(appImageUtil.CATCH_FLAG + __src); // 同步方法
 			if (_img) {
 				// 得到缓存的图片 , 直接使用缓存的图片
 				// console.log(_img);
@@ -179,7 +186,7 @@ export default {
 		// 保存图片的方法
 		saveImgStorage(key, value) {
 			uni.setStorage({
-				key: key,
+				key: appImageUtil.CATCH_FLAG + key,
 				data: value
 			})
 				.then(data => {
