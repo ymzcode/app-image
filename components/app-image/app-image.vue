@@ -1,11 +1,9 @@
 <template>
-	<view>
-		<image :src="compSrc" :lazy-load="lazyLoad" :mode="mode" :style="`width: ${width}${imgUnit}; height: ${height}${imgUnit}; ${imgStyle}`" :class="imgClass"></image>
-	</view>
+	<view><image :src="mainSrc" :lazy-load="lazyLoad" :mode="mode" :style="`width: ${width}${imgUnit}; height: ${height}${imgUnit}; ${imgStyle}`" :class="imgClass"></image></view>
 </template>
 
 <script>
-import appImageUtil from './AppImageUtil.js'
+import appImageUtil from './AppImageUtil.js';
 
 // * 1 * 自定义要替换的错误图片地址
 // 数组形式, 当前对应资源文件 static/imgError/XXXX.png
@@ -64,16 +62,12 @@ export default {
 			type: Number,
 			default: 0
 		},
-		// // 是否压缩图片质量
-		// isCompressImage: {
-		// 	type: Boolean,
-		// 	default: false
-		// },
 		// 压缩图片质量的大小
-		// compressQuality: {
-		// 	type: Number,
-		// 	default: 80
-		// },
+		// 注: 此功能只限app端使用
+		compressQuality: {
+			type: [Number, String],
+			default: 0
+		},
 		// 图片是否进行缓存
 		isCatch: {
 			type: Boolean,
@@ -88,6 +82,8 @@ export default {
 	data() {
 		return {
 			compSrc: '',
+			// 压缩后的图片地址
+			qualitySrc: '',
 			// 判断处理中是否出现错误
 			RUNERROR: false,
 			// 存储图片的信息
@@ -105,9 +101,19 @@ export default {
 		// 	console.log(res);
 		// })
 		// console.log(appImageUtil.Catch.getAllKey());
+		// console.log(uni.getStorageSync('appImageCatch#https://img.cdn.aliyun.dcloud.net.cn/uni-app/doc/run1x9.jpg'));
 		// console.log(appImageUtil.CATCH_FLAG);
 	},
-	computed: {},
+	computed: {
+		mainSrc() {
+			// #ifdef APP-PLUS
+			if (this.compressQuality > 0) {
+				return this.qualitySrc;
+			}
+			// #endif
+			return this.compSrc;
+		}
+	},
 	methods: {
 		// 图片初始化
 		imgInit() {
@@ -135,7 +141,7 @@ export default {
 			if (!this.networkImg || !this.isCatch) {
 				return;
 			}
-			
+
 			// #ifdef APP-PLUS
 			const _img = uni.getStorageSync(appImageUtil.CATCH_FLAG + __src); // 同步方法
 			if (_img) {
@@ -163,6 +169,7 @@ export default {
 						this.imgInfo = res;
 						this.compSrc = res.path;
 						// #ifdef APP-PLUS
+						this.compressImage();
 						if (this.beforeCatchImg()) {
 							this.catchImg();
 						}
@@ -230,6 +237,53 @@ export default {
 				// error
 				console.error('error 缓存图片时遇到问题', e);
 			}
+		},
+		// 对图片进行压缩
+		compressImage() {
+			let _self = this;
+			if (_self.compressQuality > 0) {
+				plus.zip.compressImage(
+					{
+						src: _self.compSrc,
+						dst: `_doc/${new Date().getTime()}.jpg`,
+						quality: _self.compressQuality,
+						overwrite: true
+					},
+					function(event) {
+						// console.log('Compress success!', event);
+						_self.qualitySrc = event.target;
+						// 将数据抛给父页面
+						_self.$emit('getCompressImageInfo', event);
+					},
+					function(error) {
+						console.error('压缩图片出错', error);
+					}
+				);
+
+				return;
+				// 这里没有使用这种方法 我实验过后发现效果很不明显 不确定此方法是否生效 后续还要再深入研究
+				// 所有暂时使用了html5+ 扩展性更大 效果更好 因此只限app端使用
+
+				// uni.compressImage({
+				// 	src: this.compSrc,
+				// 	quality: this.compressQuality
+				// }).then(data => {
+				// 	//data为一个数组，数组第一项为错误信息，第二项为返回数据
+				// 	let [compressImage_error, compressImage_res] = data;
+				// 	console.log(compressImage_error, compressImage_res);
+				// 	if (compressImage_error) {
+				// 		console.error(`压缩图片遇到错误`, compressImage_error);
+				// 		return;
+				// 	}
+
+				// 	if (compressImage_res) {
+				// 		this.qualitySrc = compressImage_res.tempFilePath
+				// 	}
+
+				// }).catch(err => {
+				// 	console.error('uni.compressImage err', err);
+				// })
+			}
 		}
 	}
 };
@@ -251,5 +305,4 @@ export default {
 .__p {
 	padding: 30rpx;
 }
-
 </style>

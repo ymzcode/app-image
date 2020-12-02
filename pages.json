@@ -17,6 +17,12 @@
 			"style": {
 				"navigationBarTitleText": "图片测试二"
 			}
+		},
+		{
+			"path": "pages/test/test-3",
+			"style": {
+				"navigationBarTitleText": "图片测试三"
+			}
 		}
 	],
 	"globalStyle": {

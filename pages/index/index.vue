@@ -1,6 +1,6 @@
 <template>
 	<view class="content">
-		<app-image src="/static/logo.png" isCatch></app-image>
+		<app-image src="/static/logo.png" compressQuality="30" isCatch></app-image>
 		<view class="text-area">
 			<text class="title">{{ title }}</text>
 		</view>
@@ -9,6 +9,9 @@
 		</navigator>
 		<navigator url="/pages/test/test-2" hover-class="navigator-hover">
 			<button type="default">缓存效果测试</button>
+		</navigator>
+		<navigator url="/pages/test/test-3" hover-class="navigator-hover">
+			<button type="default">压缩图片测试</button>
 		</navigator>
 	</view>
 </template>
