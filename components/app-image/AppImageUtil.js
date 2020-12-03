@@ -26,7 +26,7 @@ appImageUtil.CATCH_FLAG = 'appImageCatch#'
 appImageUtil.Catch = {
 	/**
 	 * @Description 查询获取当前appImage已缓存的所有图片的key
-	 * @date 2020/11/23 更新日期: 2020/11/23
+	 * @date 2020/11/23
 	 * @param {String} mode 模式 可选参数 sync-同步方法 nosync-异步方法, 不传参数默认使用同步方法
 	 * @return {Arror} 返回一个图片数组, 无数据时返回空数组
 	 * @example 
@@ -52,6 +52,43 @@ appImageUtil.Catch = {
 				})
 			})
 		}
+	}
+}
+
+appImageUtil.Size = {
+	/**
+	 * @Description 计算图片的比例尺寸 即图片宽小于750时 显示原图的大小, 如果大于取其一定比例, 显示完整的图片
+	 * @date 2020/12/3
+	 * @param {String,Number} width 原图的宽度
+	 * @param {String,Number} height 原图的高度
+	 * @return {Object} 返回一个图片大小的对象, 其单位默认为rpx  px:rpx = 1:2
+	 * @example 
+	 * 1) proportionSize(2880, 1800) 返回 {width: 750, height: 469}
+	 */
+	proportionSize: function(width, height) {
+		width = Number(width)
+		height = Number(height)
+		let imgSize = {
+			width: 88,
+			height: 88
+		}
+		let coe = 0
+		if (!width || !height || width <= 0 || height <= 0) {
+			return imgSize;
+		}
+		if (width > 750) {
+			coe = 750 / width
+			imgSize.width = 750
+			imgSize.height = Math.round(coe * height)
+		} else {
+			imgSize.width = width
+			imgSize.height = height
+		}
+		
+		// console.log('proportionSize', imgSize);
+		
+		return imgSize
+		
 	}
 }
 
