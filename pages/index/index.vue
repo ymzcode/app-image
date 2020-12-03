@@ -1,6 +1,6 @@
 <template>
 	<view class="content">
-		<app-image src="/static/logo.png" compressQuality="30" isCatch></app-image>
+		<app-image src="/static/logo.png"></app-image>
 		<view class="text-area">
 			<text class="title">{{ title }}</text>
 		</view>
