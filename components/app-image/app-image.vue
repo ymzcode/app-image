@@ -1,5 +1,16 @@
 <template>
-	<view><image :src="mainSrc" :lazy-load="lazyLoad" :mode="mode" :style="`width: ${width}${imgUnit}; height: ${height}${imgUnit}; ${imgStyle}`" :class="imgClass"></image></view>
+	<view>
+		<image
+			:src="mainSrc"
+			:lazy-load="lazyLoad"
+			:mode="mode"
+			:fade-show="fadeShow"
+			:webp="webp"
+			:show-menu-by-longpress="showMenuByLongpress"
+			:style="`width: ${mainWidth}${imgUnit}; height: ${mainHeight}${imgUnit}; ${imgStyle}`"
+			:class="imgClass"
+		></image>
+	</view>
 </template>
 
 <script>
@@ -15,17 +26,17 @@ export default {
 		// 宽度
 		width: {
 			type: [String, Number],
-			default: 88
+			default: null
 		},
 		// 高度
 		height: {
 			type: [String, Number],
-			default: 88
+			default: null
 		},
 		// 图片的模式名
 		mode: {
 			type: String,
-			default: 'aspectFill'
+			default: 'aspectFit'
 		},
 		// 图片的地址
 		src: {
@@ -62,6 +73,7 @@ export default {
 			type: Number,
 			default: 0
 		},
+		// 前置条件 开启图片自检、替换
 		// 压缩图片质量的大小
 		// 注: 此功能只限app端使用
 		compressQuality: {
@@ -75,6 +87,27 @@ export default {
 		},
 		// 图片懒加载
 		lazyLoad: {
+			type: Boolean,
+			default: true
+		},
+		// 图片显示动画效果
+		fadeShow: {
+			type: Boolean,
+			default: true
+		},
+		// 默认不解析 webP 格式，只支持网络资源
+		webp: {
+			type: Boolean,
+			default: false
+		},
+		// 开启长按图片显示识别小程序码菜单
+		showMenuByLongpress: {
+			type: Boolean,
+			default: false
+		},
+		// 前置条件 开启图片自检、替换
+		// 是否开启自动调整图片尺寸
+		isProportion: {
 			type: Boolean,
 			default: true
 		}
@@ -91,7 +124,12 @@ export default {
 			// 判断是否为网络图片
 			networkImg: false,
 			// 是否已经获得缓存图
-			isGetCatchImg: false
+			isGetCatchImg: false,
+			// 图片错误时使用图片的大小
+			imageErrSize: {
+				width: 1,
+				height: 1
+			}
 		};
 	},
 	mounted() {
@@ -107,11 +145,31 @@ export default {
 	computed: {
 		mainSrc() {
 			// #ifdef APP-PLUS
-			if (this.compressQuality > 0) {
+			if (this.autoCheckImage && this.compressQuality > 0) {
 				return this.qualitySrc;
 			}
 			// #endif
 			return this.compSrc;
+		},
+		mainWidth() {
+			if (this.width) {
+				return this.width;
+			}
+			if (this.autoCheckImage && this.isProportion) {
+				return appImageUtil.Size.proportionSize(this.imgInfo ? this.imgInfo.width : this.imageErrSize.width, this.imgInfo ? this.imgInfo.height : this.imageErrSize.height).width;
+			}
+
+			return 88;
+		},
+		mainHeight() {
+			if (this.height) {
+				return this.height;
+			}
+			if (this.autoCheckImage && this.isProportion) {
+				return appImageUtil.Size.proportionSize(this.imgInfo ? this.imgInfo.width : this.imageErrSize.width, this.imgInfo ? this.imgInfo.height : this.imageErrSize.height).height;
+			}
+
+			return 88;
 		}
 	},
 	methods: {
@@ -131,6 +189,7 @@ export default {
 			let __src = this.src;
 			if (typeof __src !== 'string') {
 				console.error('传入的类型错误，不为string', __src);
+				this.handleImageError()
 				return;
 			}
 
@@ -162,7 +221,7 @@ export default {
 					let [error, res] = data;
 					// console.log(data);
 					if (error) {
-						this.compSrc = defaultImgArr[this.replaceImgIndex];
+						this.handleImageError();
 						console.error(`图片: ${__src}, 错误信息:`, error);
 					} else {
 						// 拿到获取的图片信息
@@ -177,6 +236,7 @@ export default {
 					}
 				})
 				.catch(err => {
+					this.handleImageError();
 					console.error('uni.getImageInfo err', err);
 				});
 		},
@@ -284,6 +344,30 @@ export default {
 				// 	console.error('uni.compressImage err', err);
 				// })
 			}
+		},
+		// 图片错误的处理方法
+		handleImageError() {
+			uni.getImageInfo({ src: defaultImgArr[this.replaceImgIndex] })
+				.then(data => {
+					//data为一个数组，数组第一项为错误信息，第二项为返回数据
+					let [error, res] = data;
+					// console.log(data);
+					if (error) {
+						uni.showToast({
+							title: '加载自定义图片失败',
+							icon: 'none'
+						});
+						console.error(`加载自定义图片失败`, error);
+					} else {
+						// 拿到获取的图片信息
+						this.compSrc = defaultImgArr[this.replaceImgIndex];
+						this.imageErrSize.width = res.width;
+						this.imageErrSize.height = res.height;
+					}
+				})
+				.catch(err => {
+					console.error('uni.getImageInfo err', err);
+				});
 		}
 	}
 };
