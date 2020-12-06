@@ -36,7 +36,7 @@ export default {
 		// 图片的模式名
 		mode: {
 			type: String,
-			default: 'aspectFit'
+			default: 'aspectFill'
 		},
 		// 图片的地址
 		src: {
