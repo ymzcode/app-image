@@ -13,6 +13,9 @@
 		<navigator url="/pages/test/test-3" hover-class="navigator-hover">
 			<button type="default">压缩图片测试</button>
 		</navigator>
+		<navigator url="/pages/test/util-test-1" hover-class="navigator-hover">
+			<button type="default">工具函数测试:图片base64</button>
+		</navigator>
 	</view>
 </template>
 

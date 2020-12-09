@@ -23,6 +23,12 @@
 			"style": {
 				"navigationBarTitleText": "图片测试三"
 			}
+		},
+		{
+			"path": "pages/test/util-test-1",
+			"style": {
+				"navigationBarTitleText": "工转换base64"
+			}
 		}
 	],
 	"globalStyle": {
