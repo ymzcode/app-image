@@ -23,7 +23,7 @@
 - [ ] 图片水印
 - [ ] 错误图片展示使用div实现
 - [ ] 图片加载中效果实现
-- [ ] 点击图片进行预览
+- [x] 点击图片进行预览
 - [ ] 图片缓存的增\删\改
 - [ ] 识别图片中的文字
 - [ ] 使用大量图片进行极限\性能测试
@@ -56,6 +56,18 @@
 | 开启autoCheckImage | isCatch(图片是否进行缓存) | Boolean | false | 初始功能 | 限app(即Android\ios) |
 | 开启autoCheckImage | compressQuality(压缩图片质量的大小) | [Number, String] | 0 | 2020/12/2 | 限app |
 | 开启autoCheckImage | isProportion(是否开启自动调整图片尺寸) | Boolean | true | 2020/12/6 | 限app |
+| 无 | isPreviewImage(是否开启预览图片) | Boolean | false | 2020/12/15 | 兼容性同uni.previewImage |
+| 开启isPreviewImage | longPressActions(长按图片显示操作菜单，如不填默认为保存相册) | Object | {} | 2020/12/15 | 使用用法同uni.previewImage中longPressActions属性 |
+
+
+
+### 组件抛出的事件
+
+|       事件名        |          说明          |                        方法抛出的数据                        |
+| :-----------------: | :--------------------: | :----------------------------------------------------------: |
+|     imageClick      | 图片点击事件, 可自定义 | src - 当前图片的地址, 非传入地址, 而是处理后的展示地址<br />ignore - 阻止默认事件的函数, 通过调用ignore() 可以阻止后续的事件执行, 以便自定义事件 |
+| previewImageSuccess |      预览图片成功      |                {"errMsg": "previewImage:ok"}                 |
+|  previewImageError  |      预览图片失败      |                  {"errMsg":  ------------}                   |
 
 
 
