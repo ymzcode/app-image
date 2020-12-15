@@ -9,6 +9,7 @@
 			:show-menu-by-longpress="showMenuByLongpress"
 			:style="`width: ${mainWidth}${imgUnit}; height: ${mainHeight}${imgUnit}; ${imgStyle}`"
 			:class="imgClass"
+			@tap="onImageClick"
 		></image>
 	</view>
 </template>
@@ -110,6 +111,19 @@ export default {
 		isProportion: {
 			type: Boolean,
 			default: true
+		},
+		// 是否开启预览图片
+		isPreviewImage: {
+			type: Boolean,
+			default: false
+		},
+		// 开启预览图片时自定义longPressActions属性
+		// 长按图片显示操作菜单，如不填默认为保存相册
+		longPressActions: {
+			type: Object,
+			default: () => {
+				return {}
+			}
 		}
 	},
 	data() {
@@ -173,6 +187,36 @@ export default {
 		}
 	},
 	methods: {
+		// 图片点击事件
+		onImageClick(event) {
+			// 注释此行 可打开冒泡
+			event.stopPropagation()
+			// console.log('点击图片', this.mainSrc);
+			let jump = true;
+			this.$emit('imageClick', {
+				src: this.mainSrc,
+				ignore: () => jump = false
+			})
+			if (jump && this.isPreviewImage) {
+				this.previewImage()
+			}
+		},
+		// 预览图片
+		previewImage() {
+			let option = {
+				urls: [this.mainSrc],
+				success: (e) => {
+					this.$emit('previewImageSuccess', e)
+				},
+				fail: (err) => {
+					console.error('预览图片失败', err);
+					this.$emit('previewImageError', err)
+				}
+			}
+			JSON.stringify(this.longPressActions) !== '{}' ? option['longPressActions'] = this.longPressActions : ''
+			// console.log(option);
+			uni.previewImage(option);
+		},
 		// 图片初始化
 		imgInit() {
 			if (this.autoCheckImage) {
