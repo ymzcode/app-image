@@ -19,6 +19,9 @@
 		<navigator url="/pages/test/util-test-1" hover-class="navigator-hover">
 			<button type="default">工具函数测试:图片base64</button>
 		</navigator>
+		<navigator url="/pages/test/limit-test" hover-class="navigator-hover">
+			<button type="default">性能测试:vue页面</button>
+		</navigator>
 	</view>
 </template>
 

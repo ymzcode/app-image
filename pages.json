@@ -35,6 +35,12 @@
 			"style": {
 				"navigationBarTitleText": "工转换base64"
 			}
+		},
+		{
+			"path": "pages/test/limit-test",
+			"style": {
+				"navigationBarTitleText": "性能测试"
+			}
 		}
 	],
 	"globalStyle": {
