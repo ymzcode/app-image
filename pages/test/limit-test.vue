@@ -3,7 +3,7 @@
 		<text>说明: 测试过程中 \n [开启缓存] [开启图片预览] [开启图片懒加载] [开启自动调整图片尺寸] [开启图片自检、替换] \n </text>
 		<view class="image-card" v-for="(item,index) in imageArr" :key="item.id">
 			<app-image :src="item.url" isCatch isPreviewImage></app-image>
-			<text class="image-card-text">{{item.text}}</text>
+			<text class="image-card-text">{{index + 1}}</text>
 		</view>
 		<view class="bottom-box">
 			<view class="more-btn" @click="getImageTen">
@@ -17,7 +17,11 @@
 </template>
 
 <script>
-	// 本来想用这些随机展示, 无奈效果太差 质量参差不齐 吐了 已放弃 但保留代码
+	// 用一个接口 很容易超限
+	// 本来想用这些随机展示, 无奈效果太差 质量参差不齐 已放弃 但保留代码
+	// 实在找不到合适的接口
+	// 测试暂时搁置 用下面的方式测试难以得到严谨的结果 可以自行娱乐
+	// 申明: 以下接口地址全部由网络文章中收集而来 如有冒犯 可留言删除
 	const IMAGEURL = [
 		{
 			url: 'https://acg.xydwz.cn/gqbz/gqbz.php?return=json',
@@ -30,11 +34,11 @@
 			}
 		},
 		{
-			url: 'https://img.paulzzh.tech/touhou/random?type=json&tag=mokou',
+			url: 'https://img.paulzzh.tech/touhou/random?type=json',
 			fun: function (res) {
 				this.imageArr.push({
 					id: new Date().getTime(),
-					url: res.data.url,
+					url: res.data.preview,
 					text: res.data.author
 				})
 			}
@@ -80,11 +84,31 @@
 			}
 		},
 		{
+			url: 'https://img.xjh.me/random_img.php?return=json&type=bg&ctype=nature',
+			fun: function (res) {
+				this.imageArr.push({
+					id: new Date().getTime(),
+					url: `https:${res.data.img}`,
+					text: '暂无'
+				})
+			}
+		},
+		{
+			url: 'https://api.lyiqk.cn/scenery?type=json',
+			fun: function (res) {
+				this.imageArr.push({
+					id: new Date().getTime(),
+					url: res.data.pic,
+					text: '暂无'
+				})
+			}
+		},
+		{
 			url: 'https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1',
 			fun: function (res) {
 				this.imageArr.push({
 					id: new Date().getTime(),
-					url: `https://cn.bing.com${res.data.images.url}`,
+					url: `https://cn.bing.com${res.data.images[0].url}`,
 					text: '暂无'
 				})
 			}
@@ -103,30 +127,13 @@
 		methods: {
 			// 获取10张图片
 			getImageTen() {
-				for(let i = 0; i < 1; i++) {
+				for(let i = 0; i < 10; i++) {
 					this.api_getImage()
 				}
 			},
 			api_getImage() {
-				uni.request({
-					url: 'http://shibe.online/api/shibes?count=30&urls=true',
-					success: (res) => {
-						console.log(res);
-						res.data.map(item => {
-							this.imageArr.push({
-								id: new Date().getTime(),
-								url: item,
-								text: ' '
-							})
-						})
-					},
-					fail: (err) => {
-						console.error('请求接口报错', err);
-					}
-				})
-				return ;
-				// 已废弃
 				let _self = this
+				// 随机取接口
 				let obj = IMAGEURL[Math.floor((Math.random()*IMAGEURL.length))]
 				// console.log(obj);
 				uni.request({
